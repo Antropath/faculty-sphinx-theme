@@ -1,0 +1,52 @@
+#!/bin/bash
+
+template_dir="$(mktemp -d)"
+
+cat > "$template_dir/conf.py_t" <<- CONF_END
+# -- Project information -----------------------------------------------------
+
+project = {{ project | repr }}
+copyright = '2020, Faculty Science Limited'
+author = {{ author | repr }}
+
+# -- General configuration ---------------------------------------------------
+
+extensions = [
+    'faculty_sphinx_theme',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
+]
+
+# List of patterns, relative to source directory, that match files and
+# directories to ignore when looking for source files.
+exclude_patterns = [{{ exclude_patterns }}]
+
+# -- Options for HTML output -------------------------------------------------
+
+html_theme = 'faculty-sphinx-theme'
+CONF_END
+
+cat > "$template_dir/master_doc.rst_t" <<- MASTER_DOC_END
+{{ project }} documentation
+{{ project_underline }}==============
+
+.. toctree::
+   :maxdepth: {{ mastertocmaxdepth }}
+   :caption: Contents
+
+{{ mastertoctree }}
+MASTER_DOC_END
+
+sphinx-quickstart \
+    docs \
+    --sep \
+    --author Faculty \
+    --language "" \
+    --release "" \
+    --extensions faculty-sphinx-theme \
+    --extensions sphinx.ext.autodoc \
+    --extensions sphinx.ext.napoleon \
+    --no-batchfile \
+    -t "$template_dir"
+
+rm -r "$template_dir"
